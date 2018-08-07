@@ -17,7 +17,7 @@ This library is used by Data-Forge Plot and Data-Forge Notebook to capture visua
 
 ## Creating a template
 
-A template is a directory that contains templates for web assets that are inflated with data.
+A template is a directory that contains template files for web assets that are inflated with data.
 
 By convention you need an index.html to be the main web page. You can have any number of supporting assets such as JavaScript and CSS files.
 
@@ -80,20 +80,3 @@ To do a test capture of an image:
 To do a test capture of a PDF:
 
     capture-template capture-pdf --template=<path-to-your-web-page-template> --out=<ouput-file-name>
-
-
-
-
-
-    
-
-
-
-
-
-
-
-    
-
-
-

@@ -1,5 +1,8 @@
 import { WebServer, IWebServer }  from "./web-server";
-import { inflateTemplate, ITemplate } from './../../export'; //fio: Use npm package.
+import { inflateTemplate } from "inflate-template";
+import * as fs from 'fs-extra';
+import * as path from 'path';
+const promisify = require('promisify-any');        
 
 declare const document: any;
 
@@ -23,7 +26,7 @@ export interface ITemplateWebServer {
      * Start the template renderer.
      * For performance reasons this can be reused to instantiate and render multiple web pages.
      */
-    start(data: any, templatePath: string): void;
+    start(data: any, templatePath: string, port: number): void;
 
     /**
      * Finish the chart renderer.
@@ -68,26 +71,30 @@ export class TemplateWebServer implements ITemplateWebServer {
      * Start the web page renderer.
      * For performance reasons this can be reused to render multiple pages.
      */
-    async start (data: any, templatePath: string): Promise<void> {
+    async start (data: any, templatePath: string, port: number): Promise<void> {
         if (this.templateConfig) {
             throw new Error("Template web server is already started. Please end the previous session by calling 'end'.");
         }
 
-        const template = await inflateTemplate(data, { templatePath: templatePath });
-        const templateConfigFile = template.find("template.json");
-        if (!templateConfigFile) {
+        try {
+            const templateConfigFilePath = path.join(templatePath, "template.json");
+            const templateConfigContent = await promisify(fs.readFile)(templateConfigFilePath, "utf8");
+            this.templateConfig = JSON.parse(templateConfigContent);
+        }
+        catch (err) {
+            console.error("Failed to load template configuration.");
+            console.error(err && err.stack || err);
             throw new Error("Template configuration file 'template.json' was not found in the template directory '" + templatePath + "'.");
         }
 
-        const templateConfigContent = await templateConfigFile.expand();
-        this.templateConfig = JSON.parse(templateConfigContent);
         if (!this.templateConfig.templateRootSelector || 
             typeof(this.templateConfig.templateRootSelector) !== "string") {
                 throw new Error("Error in template configuration 'template.json' for template in directory '" + templatePath + "'. Please set 'templateRootSelector' to a valid CSS selector that designates the root of your template.");
         }
 
-        const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
-        this.webServer = new WebServer(autoAssignPortNo);
+        const template = await inflateTemplate(data, { templatePath: templatePath });
+
+        this.webServer = new WebServer(port);
         await this.webServer.start(data, template);
     }
 

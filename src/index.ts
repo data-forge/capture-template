@@ -2,16 +2,15 @@ import { TemplateRenderer, ITemplateRenderer } from "./template-renderer";
 import { argv } from 'yargs';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { ITemplate } from "../../export/build";
 const promisify = require('promisify-any');
 
 //
 // Initalise the template renderer.
 //
-async function initTemplateRenderer(data: any, templatePath: string): Promise<ITemplateRenderer> {
+async function initTemplateRenderer(data: any, templatePath: string, port: number): Promise<ITemplateRenderer> {
     const templateRenderer = new TemplateRenderer();
     await templateRenderer.start();
-    await templateRenderer.loadTemplate(data, templatePath);
+    await templateRenderer.loadTemplate(data, templatePath, port);
     return templateRenderer;
 }
 
@@ -27,8 +26,8 @@ async function deinitTemplateRenderer(templateRenderer: ITemplateRenderer): Prom
 // Expand a template web page and capture it to an image file.
 //
 export async function captureImage(data: any, templatePath: string, outputPath: string): Promise<void> {
-
-    const templateRenderer = await initTemplateRenderer(data, templatePath);
+    const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
+    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo);
     await templateRenderer.renderImage(outputPath);
     await deinitTemplateRenderer(templateRenderer);
 }
@@ -51,9 +50,9 @@ async function loadTestData(templatePath: string): Promise<any> {
 //
 // Serve the template for testing in browser.
 //
-async function cli_serve(templatePath: string): Promise<void> {
+async function cli_serve(templatePath: string, port: number): Promise<void> {
     const testData = await loadTestData(templatePath);
-    const templateRenderer = await initTemplateRenderer(testData, templatePath);
+    const templateRenderer = await initTemplateRenderer(testData, templatePath, port);
 
     console.log("Point your browser at " + templateRenderer.getUrl());
 }
@@ -97,7 +96,11 @@ if (require.main === module) { // For command line testing.
             throw new Error("Expected argument --template=<path-to-your-web-page-template>");
         }
 
-        cli_serve(argv.template)
+        if (!argv.port) {
+            throw new Error("Expected argument --port=<web-server-port-no>");
+        }
+
+        cli_serve(argv.template, argv.port)
             .catch(err => console.error(err && err.stack || err));
     }
     else if (cmd === "capture-image") {
@@ -115,7 +118,9 @@ if (require.main === module) { // For command line testing.
     else if (cmd === "capture-pdf") {
         //todo:
     }    
-    console.log(argv); //fio:
+    else {
+        throw new Error("Unknown command: " + cmd);
+    }
 }
    
  

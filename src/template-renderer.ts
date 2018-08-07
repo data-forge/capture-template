@@ -31,7 +31,7 @@ export interface ITemplateRenderer {
      * 
      * @param templatePath The path to the template.
      */
-    /*async*/ loadTemplate(data: any, templatePath: string): Promise<void>;
+    /*async*/ loadTemplate(data: any, templatePath: string, port: number): Promise<void>;
 
     /**
      * Unload current template when we are done.
@@ -95,11 +95,11 @@ export class TemplateRenderer implements ITemplateRenderer {
      * 
      * @param templatePath The path to the template.
      */
-    async loadTemplate(data: any, templatePath: string): Promise<void> {
+    async loadTemplate(data: any, templatePath: string, port: number): Promise<void> {
         this.unloadTemplate();
 
         this.templateWebServer = new TemplateWebServer();
-        await this.templateWebServer.start(data, templatePath);
+        await this.templateWebServer.start(data, templatePath, port);
     }
 
     /**

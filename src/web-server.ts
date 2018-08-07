@@ -120,7 +120,6 @@ export class WebServer implements IWebServer {
                 }
                 else {
                     this.assignedPortNo = this.server.address().port
-                    console.log("Web server listening on port " + this.assignedPortNo); 
                     resolve();
                 }
             });
