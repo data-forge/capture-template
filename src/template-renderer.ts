@@ -39,11 +39,14 @@ export interface ITemplateRenderer {
     /*async*/ unloadTemplate(): Promise<void>;
 
     /**
-     * Render the current template to an image.
+     * Render the current web page template to an image file.
      */
     /*async*/ renderImage (outputFilePath: string): Promise<void>;
 
-    //TODO: Add PDF rendering here.
+    /**
+     * Render the current web page template to a PDF file.
+     */
+    /*async*/ renderPDF (outputFilePath: string): Promise<void>;
 }
 
 /**
@@ -112,10 +115,10 @@ export class TemplateRenderer implements ITemplateRenderer {
         }
     }
 
-    /**
-     * Render the current template to an image.
-     */
-    async renderImage (outputFilePath: string): Promise<void> {
+    //
+    // Check current setup prior to doing any rendering.
+    //
+    private preRenderCheck(): void {
         if (!this.webPageRenderer) {
             throw new Error("TemplateRenderer is not started, please call 'start' to initiate.");
         }
@@ -123,7 +126,21 @@ export class TemplateRenderer implements ITemplateRenderer {
         if (!this.templateWebServer) {
             throw new Error("TemplateRenderer: No template is loaded, please call 'loadTemplate'.");
         }
+    }
 
-        await this.webPageRenderer.renderImage(this.templateWebServer.getUrl(), outputFilePath, this.templateWebServer.getRootSelector());
+    /**
+     * Render the current web page template to an image file.
+     */
+    async renderImage (outputFilePath: string): Promise<void> {
+        this.preRenderCheck();
+        await this.webPageRenderer!.renderImage(this.templateWebServer!.getUrl(), outputFilePath, this.templateWebServer!.getTemplateConfig());
+    }
+
+    /**
+     * Render the current web page template to a PDF file.
+     */
+    async renderPDF (outputFilePath: string): Promise<void> {
+        this.preRenderCheck();
+        await this.webPageRenderer!.renderPDF(this.templateWebServer!.getUrl(), outputFilePath, this.templateWebServer!.getTemplateConfig());
     }
 }

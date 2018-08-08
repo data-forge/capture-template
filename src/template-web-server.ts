@@ -18,9 +18,9 @@ export interface ITemplateWebServer {
     getUrl(): string;
 
     /**
-     * Get the root selector of the document.
+     * Get the options for the template.
      */
-    getRootSelector(): string; 
+    getTemplateConfig(): any; 
     
     /**
      * Start the template renderer.
@@ -57,14 +57,14 @@ export class TemplateWebServer implements ITemplateWebServer {
     }
 
     /**
-     * Get the root selector of the document.
+     * Get the options for the template.
      */
-    getRootSelector(): string {
+    getTemplateConfig(): any {
         if (!this.templateConfig) {
             throw new Error("Template web server is not started, please call 'start'.");
         }
         
-        return this.templateConfig.templateRootSelector;
+        return this.templateConfig;
     }
     
     /**
@@ -87,9 +87,9 @@ export class TemplateWebServer implements ITemplateWebServer {
             throw new Error("Template configuration file 'template.json' was not found in the template directory '" + templatePath + "'.");
         }
 
-        if (!this.templateConfig.templateRootSelector || 
-            typeof(this.templateConfig.templateRootSelector) !== "string") {
-                throw new Error("Error in template configuration 'template.json' for template in directory '" + templatePath + "'. Please set 'templateRootSelector' to a valid CSS selector that designates the root of your template.");
+        if (!this.templateConfig.waitSelector || 
+            typeof(this.templateConfig.waitSelector) !== "string") {
+                throw new Error("Error in template configuration 'template.json' for template in directory '" + templatePath + "'. Please set 'waitSelector' to a valid CSS selector that designates the element in the DOM to wait before before invoking the capture.");
         }
 
         const template = await inflateTemplate(data, { templatePath: templatePath });

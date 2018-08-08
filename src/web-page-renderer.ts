@@ -3,6 +3,22 @@ const Nightmare = require("nightmare");
 declare const document: any;
 
 /**
+ * Options for rendering.
+ */
+export interface IRenderOptions {
+    /**
+     * Selector for the element that must appear in the DOM before capturing.
+     */
+    waitSelector: string;
+
+    /**
+     * Selector that is to be captured.
+     * For 'renderImage' only. If omitted defaults to the value of 'waitSelector'.
+     */
+    captureSelector?: string;
+}
+
+/**
  * Interface to the web page renderer.
  * This component is responsible for rendering a web page to a PNG image or PDF file.
  */
@@ -20,9 +36,14 @@ export interface IWebPageRenderer {
     /*async*/ end (): Promise<void>;
 
     /**
-     * Render a web page to a PNG file.
+     * Render a web page to an image file.
      */
-    /*async*/ renderImage (webPageUrl: string, outputFilePath: string, rootSelector: string): Promise<void>;
+    /*async*/ renderImage (webPageUrl: string, outputFilePath: string, options: IRenderOptions): Promise<void>;
+
+    /**
+     * Render a web page to a PDF file.
+     */
+    /*async*/ renderPDF (webPageUrl: string, outputFilePath: string, options: IRenderOptions): Promise<void>;
 }
 
 /**
@@ -77,20 +98,30 @@ export class WebPageRenderer implements IWebPageRenderer {
         this.nightmare = null;
     }
 
-    /**
-     * Render a web page to a PNG file.
-     */
-    async renderImage (webPageUrl: string, outputFilePath: string, rootSelector: string): Promise<void> {
+    //
+    // Check current setup prior to doing any rendering.
+    //
+    private preRenderCheck(options: IRenderOptions): void {
+        if (!options.waitSelector) {
+            throw new Error("'waitSelector' not specified in the options, please set this to element that must appear in the DOM before the capture is invoked.");
+        }
+
         if (!this.nightmare) {
             throw new Error("WebPageRenderer: Nightmare headless browser is not instantiated, please call `start` before calling `renderImage`.");
         }
+    }
 
+    /**
+     * Render a web page to an image file.
+     */
+    async renderImage (webPageUrl: string, outputFilePath: string, options: IRenderOptions): Promise<void> {
+        this.preRenderCheck(options);
         this.nightmare.goto(webPageUrl); 
-        await this.nightmare.wait(rootSelector);
+        this.nightmare.wait(options.waitSelector);
         await this.nightmare.evaluate(
-                (rootSelector: string) => {
+                (catureSelector: string) => {
                     const body = document.querySelector('body');
-                    const element = document.querySelector(rootSelector);
+                    const element = document.querySelector(catureSelector);
                     const rect = element.getBoundingClientRect();
                     return {
                         bodyWidth: body.scrollWidth,
@@ -101,12 +132,47 @@ export class WebPageRenderer implements IWebPageRenderer {
                         width: rect.right - rect.left,
                     };
                 }, 
-                rootSelector
+                options.captureSelector || options.waitSelector,
             )
             .then((rect: any) => {
                 return this.nightmare
                     .viewport(rect.bodyWidth, rect.bodyHeight)
                     .screenshot(outputFilePath, rect);
             });
+    }
+
+    /**
+     * Render a web page to a PDF file.
+     */
+    async renderPDF (webPageUrl: string, outputFilePath: string, options: IRenderOptions): Promise<void> {
+        this.preRenderCheck(options);
+        this.nightmare.goto(webPageUrl);
+        this.nightmare.wait(options.waitSelector)
+        await this.nightmare.evaluate(() => {
+                const body = document.querySelector("body");
+                return {
+                    documentArea: {
+                        width: body.scrollWidth,
+                        height: body.scrollHeight
+                    },
+                };
+            })
+            .then((pageDetails: any) => {
+                const printOptions = {
+                    marginsType: 0, // No margins, want to set the explicitly in CSS. TODO: This could be a template option.
+                    
+                    // The size of each page. These values match the specification for the A4 page size standard, but in landscape.
+                    //TODO: This should be configurable somehow.
+                    pageSize: { 
+                        width: 297000, // 29.7cm (in microns, don't ask me why they put this is in microns).
+                        height: 210000, // 21cm (in microns)
+                    },
+                    landscape: true,
+                };
+
+                return this.nightmare
+                    .viewport(pageDetails.documentArea.width, pageDetails.documentArea.height)
+                    .pdf(outputFilePath, printOptions);
+            });    
     }
 }

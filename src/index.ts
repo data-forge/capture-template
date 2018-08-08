@@ -32,6 +32,16 @@ export async function captureImage(data: any, templatePath: string, outputPath: 
     await deinitTemplateRenderer(templateRenderer);
 }
 
+//
+// Expand a template web page and capture it to a PDF file.
+//
+export async function capturePDF(data: any, templatePath: string, outputPath: string): Promise<void> {
+    const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
+    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo);
+    await templateRenderer.renderPDF(outputPath);
+    await deinitTemplateRenderer(templateRenderer);
+}
+
 // 
 // Load test data from the template directory.
 //
@@ -48,7 +58,7 @@ async function loadTestData(templatePath: string): Promise<any> {
 }
 
 //
-// Serve the template for testing in browser.
+// Inflate the web page template and start a web server for testing in browser.
 //
 async function cli_serve(templatePath: string, port: number): Promise<void> {
     const testData = await loadTestData(templatePath);
@@ -58,11 +68,19 @@ async function cli_serve(templatePath: string, port: number): Promise<void> {
 }
 
 //
-// Capture an image from a template from the command line.
+// Capture an image from a web page template using the command line.
 //
 async function cli_captureImage(templatePath: string, outputPath: string): Promise<void> {
     const testData = await loadTestData(templatePath);
     await captureImage(testData, templatePath, outputPath);
+}
+
+//
+// Capture a PDF from a web page template using the command line.
+//
+async function cli_capturePDF(templatePath: string, outputPath: string): Promise<void> {
+    const testData = await loadTestData(templatePath);
+    await capturePDF(testData, templatePath, outputPath);
 }
 
 //
@@ -74,7 +92,7 @@ async function testRun(): Promise<void> {
             msg: "Hello computer",
             color: "blue",
         }, 
-        "test-template",
+        "test-template/image",
         "test-output/test-image.png"
     );
 }
@@ -116,7 +134,16 @@ if (require.main === module) { // For command line testing.
             .catch(err => console.error(err && err.stack || err));
     }
     else if (cmd === "capture-pdf") {
-        //todo:
+        if (!argv.template) {
+            throw new Error("Expected argument --template=<path-to-your-web-page-template>");
+        }
+
+        if (!argv.out) {
+            throw new Error("Expected argument --out=<path-to-your-output-file>");
+        }
+
+        cli_capturePDF(argv.template, argv.out)
+            .catch(err => console.error(err && err.stack || err));
     }    
     else {
         throw new Error("Unknown command: " + cmd);

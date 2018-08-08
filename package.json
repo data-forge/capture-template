@@ -6,9 +6,9 @@
     "types": "build/index.d.ts",
     "scripts": {
         "start": "ts-node src/index.ts test",
-        "cli-test1": "ts-node src/index.ts serve --template=test-template --port=3000",
-        "cli-test2": "ts-node src/index.ts capture-image --template=test-template --out=test-output/test-image2.png",
-        "cli-test3": "ts-node src/index.ts capture-pdf --template=test-template --out=test-output/test-pdf.png",
+        "cli-test1": "ts-node src/index.ts serve --template=test-template/image --port=3000",
+        "cli-test2": "ts-node src/index.ts capture-image --template=test-template/image --out=test-output/test-image2.png",
+        "cli-test3": "ts-node src/index.ts capture-pdf --template=test-template/pdf --out=test-output/test.pdf",
         "clean": "rm -rf build/*",
         "build": "tsc",
         "clean-build": "rm -rf build/* && tsc",
