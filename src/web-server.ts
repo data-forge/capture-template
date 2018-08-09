@@ -1,7 +1,7 @@
 import * as express from "express";
 import * as http from 'http';
 import * as path from "path";
-import { ITemplate } from "../../export/build";
+import { ITemplate } from 'inflate-template';
 
 /**
  * Web-server component. Serves the chart interative chart.
@@ -70,7 +70,6 @@ export class WebServer implements IWebServer {
         if (cachedFileContent) {
             return cachedFileContent;
         }
-
         const fileSystemPath = path.join(...url.split('/'));
         const templateFile = template.find(fileSystemPath);
         if (!templateFile) {
@@ -107,13 +106,7 @@ export class WebServer implements IWebServer {
                     response.sendStatus(404);
                 }
             });
-    
-            app.get("/data", (request, response) => {
-                response.json({
-                    data: data,
-                });
-            });
-            
+                
             this.server.listen(this.requestedPortNo, (err: any) => {
                 if (err) {
                     reject(err);

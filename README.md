@@ -23,6 +23,12 @@ By convention you need an index.html to be the main web page. You can have any n
 
 This repository contains an example template under the test-template directory. Please use this to understand the basics of how a template is constructed.
 
+A template can contain a template.json configuration file and a test-data.json. Both files by convention are omitted from the expanded template.
+
+template.json must contain a field 'waitSelector' that specifies the element/tag that must appear in the DOM before the image or PDF file can be captured.
+
+When using the 'renderImage' function a 'captureSelector' field can optionally specify the root element to be captured. If tonot specified the the 'waitSelector' field is used instead. 'captureSelector' is ignored for PDF capture, PDF capture automatically captures the entire web page.
+
 ## Programmatic Usage
 
 ### Installation
