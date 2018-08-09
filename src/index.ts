@@ -26,6 +26,7 @@ async function deinitTemplateRenderer(templateRenderer: ITemplateRenderer): Prom
 // Expand a template web page and capture it to an image file.
 //
 export async function captureImage(data: any, templatePath: string, outputPath: string): Promise<void> {
+    await fs.ensureDir(path.dirname(outputPath));
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
     const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo);
     await templateRenderer.renderImage(outputPath);
@@ -36,6 +37,7 @@ export async function captureImage(data: any, templatePath: string, outputPath: 
 // Expand a template web page and capture it to a PDF file.
 //
 export async function capturePDF(data: any, templatePath: string, outputPath: string): Promise<void> {
+    await fs.ensureDir(path.dirname(outputPath));
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
     const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo);
     await templateRenderer.renderPDF(outputPath);
