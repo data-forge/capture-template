@@ -7,8 +7,8 @@ const promisify = require('promisify-any');
 //
 // Initalise the template renderer.
 //
-async function initTemplateRenderer(data: any, templatePath: string, port: number): Promise<ITemplateRenderer> {
-    const templateRenderer = new TemplateRenderer();
+async function initTemplateRenderer(data: any, templatePath: string, port: number, electronPath?: string): Promise<ITemplateRenderer> {
+    const templateRenderer = new TemplateRenderer(electronPath);
     await templateRenderer.start();
     await templateRenderer.loadTemplate(data, templatePath, port);
     return templateRenderer;
@@ -25,10 +25,10 @@ async function deinitTemplateRenderer(templateRenderer: ITemplateRenderer): Prom
 //
 // Expand a template web page and capture it to an image file.
 //
-export async function captureImage(data: any, templatePath: string, outputPath: string): Promise<void> {
+export async function captureImage(data: any, templatePath: string, outputPath: string, electronPath?: string): Promise<void> {
     await fs.ensureDir(path.dirname(outputPath));
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
-    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo);
+    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo, electronPath);
     await templateRenderer.renderImage(outputPath);
     await deinitTemplateRenderer(templateRenderer);
 }
@@ -36,10 +36,10 @@ export async function captureImage(data: any, templatePath: string, outputPath: 
 //
 // Expand a template web page and capture it to a PDF file.
 //
-export async function capturePDF(data: any, templatePath: string, outputPath: string): Promise<void> {
+export async function capturePDF(data: any, templatePath: string, outputPath: string, electronPath?: string): Promise<void> {
     await fs.ensureDir(path.dirname(outputPath));
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
-    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo);
+    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo, electronPath);
     await templateRenderer.renderPDF(outputPath);
     await deinitTemplateRenderer(templateRenderer);
 }

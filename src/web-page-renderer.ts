@@ -52,19 +52,35 @@ export interface IWebPageRenderer {
 export class WebPageRenderer implements IWebPageRenderer {
 
     /**
+     * Specifies the path to load Electron from or null to use default path.
+     */
+    electronPath?: string;
+
+    /**
      * Nightmare headless browser instance.
      */
     nightmare: any | null = null;
+
+    constructor (electronPath?: string) {
+        this.electronPath = electronPath;
+    }
 
     /**
      * Start the web page renderer.
      * For performance reasons this can be reused to render multiple pages.
      */
     async start (): Promise<void> {
-        this.nightmare = new Nightmare({
+        const nightmareOptions: any = {
             show: false,
             frame: false,
-        });
+        };
+
+        if (this.electronPath) {
+            // Include Electron path if specified.
+            nightmareOptions.electronPath = this.electronPath;
+        }
+
+        this.nightmare = new Nightmare(nightmareOptions);
 
         this.nightmare.on('crashed', (evt: any) => {
             throw new Error("Nightmare crashed " + evt.toString());

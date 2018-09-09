@@ -56,6 +56,11 @@ export interface ITemplateRenderer {
 export class TemplateRenderer implements ITemplateRenderer {
 
     /**
+     * Specifies the path to load Electron from or null to use default path.
+     */
+    electronPath?: string;
+    
+    /**
      * Renders the web page.
      */
     private webPageRenderer: IWebPageRenderer | null = null;
@@ -64,6 +69,10 @@ export class TemplateRenderer implements ITemplateRenderer {
      * Hosts the templated web page to be rendered.
      */
     private templateWebServer: ITemplateWebServer | null = null;
+
+    constructor (electronPath?: string) {
+        this.electronPath = electronPath;
+    }
 
     /**
      * Get the URL to access the web-sever.
@@ -77,7 +86,7 @@ export class TemplateRenderer implements ITemplateRenderer {
      * For performance reasons the template render can be reused to render multiple web pages.
      */
     async start (): Promise<void> {
-        this.webPageRenderer = new WebPageRenderer();
+        this.webPageRenderer = new WebPageRenderer(this.electronPath);
         await this.webPageRenderer.start();
     }
 
