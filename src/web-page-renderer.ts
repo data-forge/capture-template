@@ -86,6 +86,21 @@ export class WebPageRenderer implements IWebPageRenderer {
             throw new Error("Nightmare crashed " + evt.toString());
         });
 
+        this.nightmare.on('page', (type: string, message: string, stack: any) => {
+            if (type === "error") {
+                console.error("Browser page error: " + message);
+                console.error(stack);
+            }
+        });
+
+        this.nightmare.on("did-fail-load", (event: any, errorCode: number, errorDescription: string, validatedURL: string, isMainFrame: boolean) => {
+            console.error("Browser page failed to load.");
+            console.error("Error code: " + errorCode);
+            console.error("Error description: " + errorDescription);
+            console.error("Validated URL: " + validatedURL);
+            console.error("Is main frame: " + isMainFrame);
+        });
+
         this.nightmare.on('console', (type: string, message: string) => {
 
             if (type === 'log') {
