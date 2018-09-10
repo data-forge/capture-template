@@ -1,6 +1,6 @@
 {
     "name": "capture-template",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "This library is responsible for expanding a template web page and then capturing it PNG or PDF.",
     "main": "build/index.js",
     "types": "build/index.d.ts",

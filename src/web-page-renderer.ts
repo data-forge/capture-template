@@ -73,6 +73,8 @@ export class WebPageRenderer implements IWebPageRenderer {
         const nightmareOptions: any = {
             show: false,
             frame: false,
+            maxHeight: 1000000,
+            maxWidth: 1000000,
         };
 
         if (this.electronPath) {
@@ -150,9 +152,9 @@ export class WebPageRenderer implements IWebPageRenderer {
         this.nightmare.goto(webPageUrl); 
         this.nightmare.wait(options.waitSelector);
         await this.nightmare.evaluate(
-                (catureSelector: string) => {
+                (captureSelector: string) => {
                     const body = document.querySelector('body');
-                    const element = document.querySelector(catureSelector);
+                    const element = document.querySelector(captureSelector);
                     const rect = element.getBoundingClientRect();
                     return {
                         bodyWidth: body.scrollWidth,
