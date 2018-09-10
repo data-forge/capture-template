@@ -159,10 +159,10 @@ export class WebPageRenderer implements IWebPageRenderer {
                     return {
                         bodyWidth: body.scrollWidth,
                         bodyHeight: body.scrollHeight,
-                        x: rect.left,
-                        y: rect.top,
-                        height: rect.bottom - rect.top,
-                        width: rect.right - rect.left,
+                        x: Math.ceil(rect.left),
+                        y: Math.ceil(rect.top),
+                        height: Math.ceil(rect.bottom - rect.top),
+                        width: Math.ceil(rect.right - rect.left),
                     };
                 }, 
                 options.captureSelector || options.waitSelector,
