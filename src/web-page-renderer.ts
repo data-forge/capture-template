@@ -151,14 +151,21 @@ export class WebPageRenderer implements IWebPageRenderer {
         this.preRenderCheck(options);
         this.nightmare.goto(webPageUrl); 
         this.nightmare.wait(options.waitSelector);
-        await this.nightmare.evaluate(
+        await this.nightmare.evaluate(() => {
+                const body = document.querySelector('body');
+                return {
+                    width: body.scrollWidth,
+                    height: body.scrollHeight,
+                };
+            })
+            .then((bodySize: any) => {
+                return this.nightmare.viewport(bodySize.width, bodySize.height)
+            })
+            this.nightmare.evaluate(
                 (captureSelector: string) => {
-                    const body = document.querySelector('body');
                     const element = document.querySelector(captureSelector);
                     const rect = element.getBoundingClientRect();
                     return {
-                        bodyWidth: body.scrollWidth,
-                        bodyHeight: body.scrollHeight,
                         x: Math.ceil(rect.left),
                         y: Math.ceil(rect.top),
                         height: Math.ceil(rect.bottom - rect.top),
@@ -168,9 +175,7 @@ export class WebPageRenderer implements IWebPageRenderer {
                 options.captureSelector || options.waitSelector,
             )
             .then((rect: any) => {
-                return this.nightmare
-                    .viewport(rect.bodyWidth, rect.bodyHeight)
-                    .screenshot(outputFilePath, rect);
+                return this.nightmare.screenshot(outputFilePath, rect);
             });
     }
 
