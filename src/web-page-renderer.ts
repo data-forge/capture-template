@@ -202,19 +202,21 @@ export class WebPageRenderer implements IWebPageRenderer {
             .then((bodySize: any) => {
                 return this.nightmare.viewport(bodySize.width, bodySize.height)
             })
-            this.nightmare.evaluate(
-                (captureSelector: string) => {
-                    const element = document.querySelector(captureSelector);
-                    const rect = element.getBoundingClientRect();
-                    return {
-                        x: Math.ceil(rect.left),
-                        y: Math.ceil(rect.top),
-                        height: Math.ceil(rect.bottom - rect.top),
-                        width: Math.ceil(rect.right - rect.left),
-                    };
-                }, 
-                options.captureSelector || options.waitSelector,
-            )
+            .then(() => {
+                return this.nightmare.evaluate(
+                    (captureSelector: string) => {
+                        const element = document.querySelector(captureSelector);
+                        const rect = element.getBoundingClientRect();
+                        return {
+                            x: Math.ceil(rect.left),
+                            y: Math.ceil(rect.top),
+                            height: Math.ceil(rect.bottom - rect.top),
+                            width: Math.ceil(rect.right - rect.left),
+                        };
+                    }, 
+                    options.captureSelector || options.waitSelector,
+                )
+            })
             .then((rect: any) => {
                 return this.nightmare.screenshot(outputFilePath, rect);
             });
