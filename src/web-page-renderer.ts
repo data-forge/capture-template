@@ -215,7 +215,7 @@ export class WebPageRenderer implements IWebPageRenderer {
                         };
                     }, 
                     options.captureSelector || options.waitSelector,
-                )
+                );
             })
             .then((rect: any) => {
                 return this.nightmare.screenshot(outputFilePath, rect);
