@@ -1,5 +1,6 @@
 import { IWebPageRenderer, WebPageRenderer } from "./web-page-renderer";
 import { ITemplateWebServer, TemplateWebServer } from "./template-web-server";
+import { ICaptureOptions } from "./index";
 
 declare const document: any;
 
@@ -56,9 +57,9 @@ export interface ITemplateRenderer {
 export class TemplateRenderer implements ITemplateRenderer {
 
     /**
-     * Specifies the path to load Electron from or null to use default path.
+     * Options for capturing.
      */
-    electronPath?: string;
+    private options?: ICaptureOptions;
     
     /**
      * Renders the web page.
@@ -70,8 +71,8 @@ export class TemplateRenderer implements ITemplateRenderer {
      */
     private templateWebServer: ITemplateWebServer | null = null;
 
-    constructor (electronPath?: string) {
-        this.electronPath = electronPath;
+    constructor (options?: ICaptureOptions) {
+        this.options = options;
     }
 
     /**
@@ -86,7 +87,7 @@ export class TemplateRenderer implements ITemplateRenderer {
      * For performance reasons the template render can be reused to render multiple web pages.
      */
     async start (): Promise<void> {
-        this.webPageRenderer = new WebPageRenderer(this.electronPath);
+        this.webPageRenderer = new WebPageRenderer(this.options);
         await this.webPageRenderer.start();
     }
 
@@ -110,7 +111,7 @@ export class TemplateRenderer implements ITemplateRenderer {
     async loadTemplate(data: any, templatePath: string, port: number): Promise<void> {
         this.unloadTemplate();
 
-        this.templateWebServer = new TemplateWebServer();
+        this.templateWebServer = new TemplateWebServer(this.options && this.options.log);
         await this.templateWebServer.start(data, templatePath, port);
     }
 

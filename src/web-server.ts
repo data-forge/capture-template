@@ -2,6 +2,7 @@ import * as express from "express";
 import * as http from 'http';
 import * as path from "path";
 import { ITemplate } from 'inflate-template';
+import { ILog } from "./index";
 
 /**
  * Web-server component. Serves the chart interative chart.
@@ -30,29 +31,47 @@ export interface IWebServer {
 export class WebServer implements IWebServer {
 
     /**
+     * Optinally override logging.
+     */
+    private log?: ILog;
+
+    /**
      * The requested port number for the web server.
      */
-    requestedPortNo: number;
+    private requestedPortNo: number;
 
     /**
      * The assigned port number for the web server.
      */
-    assignedPortNo: number;
+    private assignedPortNo: number;
 
     /**
      * The Express server instance that implements the web-server.
      */
-    server: any | null = null;
+    private server: any | null = null;
 
     /**
      * The data that defines the chart.
      * Passed to the browser-based chart via REST API.
      */
-    chartDef: any = {};
+    private chartDef: any = {};
 
-    constructor (portNo: number) {
+    constructor (portNo: number, log?: ILog) {
         this.requestedPortNo = portNo;
         this.assignedPortNo = portNo;
+        this.log = log;
+    }
+
+    /**
+     * Log an error message.
+     */
+    error(msg: string): void {
+        if (this.log) {
+            this.log.error(msg);
+        }
+        else {
+            console.error(msg);
+        }
     }
 
     /**
@@ -100,8 +119,8 @@ export class WebServer implements IWebServer {
                     response.send(fileContent);
                 }
                 catch (err) {
-                    console.error("Error loading template file.");
-                    console.error(err && err.stack || err);
+                    this.error("Error loading template file.");
+                    this.error(err && err.stack || err);
 
                     response.sendStatus(404);
                 }

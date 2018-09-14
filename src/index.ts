@@ -4,11 +4,67 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 const promisify = require('promisify-any');
 
+/**
+ * Allows caller to override logging.
+ */
+export interface ILog {
+    /**
+     * Log an info message.
+     */
+    info(msg: string): void;
+
+    /**
+     * Log a warning message.
+     */
+    warn(msg: string): void;
+
+    /**
+     * Log an error message.
+     */
+    error(msg: string): void;
+}
+
+/**
+ * Specifies options that can be passed to the capture function.
+ */
+export interface ICaptureOptions {
+
+    /**
+     * Optionally override logging.
+     */
+    log?: ILog;
+
+    /**
+     * Optional timeout for Electron's wait function.
+     */
+    waitTimeout?: number;
+    
+    /**
+     * Optional timeout for Electron's goto function.
+     */
+    gotoTimeout?: number;
+
+    /**
+     * Opens Electron's devtools, this only helps if show browser is also enabled!
+     */
+    openDevTools?: boolean;
+
+    /**
+     * Set to true to show the headless browser.
+     */
+    showBrowser?: boolean;
+
+    /**
+     * Specify the path to Electron if that's necessary for you.
+     */
+    electronPath?: string;
+}
+
 //
 // Initalise the template renderer.
 //
-async function initTemplateRenderer(data: any, templatePath: string, port: number, electronPath?: string): Promise<ITemplateRenderer> {
-    const templateRenderer = new TemplateRenderer(electronPath);
+async function initTemplateRenderer(data: any, templatePath: string, port: number, options?: ICaptureOptions): Promise<ITemplateRenderer> {
+    const templateRenderer = new TemplateRenderer(options);
     await templateRenderer.start();
     await templateRenderer.loadTemplate(data, templatePath, port);
     return templateRenderer;
@@ -25,10 +81,10 @@ async function deinitTemplateRenderer(templateRenderer: ITemplateRenderer): Prom
 //
 // Expand a template web page and capture it to an image file.
 //
-export async function captureImage(data: any, templatePath: string, outputPath: string, electronPath?: string): Promise<void> {
+export async function captureImage(data: any, templatePath: string, outputPath: string, options?: ICaptureOptions): Promise<void> {
     await fs.ensureDir(path.dirname(outputPath));
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
-    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo, electronPath);
+    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo, options);
     await templateRenderer.renderImage(outputPath);
     await deinitTemplateRenderer(templateRenderer);
 }
@@ -36,10 +92,10 @@ export async function captureImage(data: any, templatePath: string, outputPath: 
 //
 // Expand a template web page and capture it to a PDF file.
 //
-export async function capturePDF(data: any, templatePath: string, outputPath: string, electronPath?: string): Promise<void> {
+export async function capturePDF(data: any, templatePath: string, outputPath: string, options?: ICaptureOptions): Promise<void> {
     await fs.ensureDir(path.dirname(outputPath));
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
-    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo, electronPath);
+    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo, options);
     await templateRenderer.renderPDF(outputPath);
     await deinitTemplateRenderer(templateRenderer);
 }

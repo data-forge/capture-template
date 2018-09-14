@@ -2,6 +2,7 @@ import { WebServer, IWebServer }  from "./web-server";
 import { inflateTemplate } from "inflate-template";
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { ILog } from "./index";
 const promisify = require('promisify-any');        
 
 declare const document: any;
@@ -40,14 +41,23 @@ export interface ITemplateWebServer {
 export class TemplateWebServer implements ITemplateWebServer {
 
     /**
+     * Optinally override logging.
+     */
+    private log?: ILog;
+
+    /**
      * For performance reasons this can be reused to instantiate and render multiple web pages.
      */
-    webServer: IWebServer | null = null;
+    private webServer: IWebServer | null = null;
 
     /**
      * Template configuration, once web server is started and template has been inflated.
      */
-    templateConfig: any | null = null;
+    private templateConfig: any | null = null;
+
+    constructor(log?: ILog) {
+        this.log = log;
+    }
 
     /**
      * Get the URL to access the web-sever.

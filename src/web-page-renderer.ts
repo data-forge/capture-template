@@ -1,3 +1,5 @@
+import { ICaptureOptions } from "./index";
+
 const Nightmare = require("nightmare");
 
 declare const document: any;
@@ -52,17 +54,53 @@ export interface IWebPageRenderer {
 export class WebPageRenderer implements IWebPageRenderer {
 
     /**
-     * Specifies the path to load Electron from or null to use default path.
+     * Options for capturing.
      */
-    electronPath?: string;
+    private options?: ICaptureOptions;
 
     /**
      * Nightmare headless browser instance.
      */
-    nightmare: any | null = null;
+    private nightmare: any | null = null;
 
-    constructor (electronPath?: string) {
-        this.electronPath = electronPath;
+    constructor (options?: ICaptureOptions) {
+        this.options = options;
+    }
+
+    /**
+     * Log an info message.
+     */
+    info(msg: string): void {
+        if (this.options && this.options.log) {
+            this.options.log.info(msg);
+        }
+        else {
+            console.info(msg);
+        }
+    }
+
+    /**
+     * Log a warning message.
+     */
+    warn(msg: string): void {
+        if (this.options && this.options.log) {
+            this.options.log.warn(msg);
+        }
+        else {
+            console.warn(msg);
+        }
+    }
+
+    /**
+     * Log an error message.
+     */
+    error(msg: string): void {
+        if (this.options && this.options.log) {
+            this.options.log.error(msg);
+        }
+        else {
+            console.error(msg);
+        }
     }
 
     /**
@@ -71,15 +109,18 @@ export class WebPageRenderer implements IWebPageRenderer {
      */
     async start (): Promise<void> {
         const nightmareOptions: any = {
-            show: false,
+            show: this.options && this.options.showBrowser,
             frame: false,
             maxHeight: 1000000,
             maxWidth: 1000000,
+            waitTimeout: this.options && this.options.waitTimeout,
+            gotoTimeout: this.options && this.options.gotoTimeout,
+            openDevTools: this.options && this.options.openDevTools,
         };
 
-        if (this.electronPath) {
+        if (this.options && this.options.electronPath) {
             // Include Electron path if specified.
-            nightmareOptions.electronPath = this.electronPath;
+            nightmareOptions.electronPath = this.options.electronPath;
         }
 
         this.nightmare = new Nightmare(nightmareOptions);
@@ -90,34 +131,34 @@ export class WebPageRenderer implements IWebPageRenderer {
 
         this.nightmare.on('page', (type: string, message: string, stack: any) => {
             if (type === "error") {
-                console.error("Browser page error: " + message);
-                console.error(stack);
+                this.error("Browser page error: " + message);
+                this.error(stack);
             }
         });
 
         this.nightmare.on("did-fail-load", (event: any, errorCode: number, errorDescription: string, validatedURL: string, isMainFrame: boolean) => {
-            console.error("Browser page failed to load.");
-            console.error("Error code: " + errorCode);
-            console.error("Error description: " + errorDescription);
-            console.error("Validated URL: " + validatedURL);
-            console.error("Is main frame: " + isMainFrame);
+            this.error("Browser page failed to load.");
+            this.error("Error code: " + errorCode);
+            this.error("Error description: " + errorDescription);
+            this.error("Validated URL: " + validatedURL);
+            this.error("Is main frame: " + isMainFrame);
         });
 
         this.nightmare.on('console', (type: string, message: string) => {
 
             if (type === 'log') {
-                console.log('LOG: ' + message);
+                this.info('LOG: ' + message);
                 return;
             }
     
             if (type === 'warn') {
-                console.warn('LOG: ' + message);
+                this.warn('LOG: ' + message);
                 return;
             }
     
             if (type === 'error') {
-                console.error("Browser JavaScript error:");
-                console.error(message);
+                this.error("Browser JavaScript error:");
+                this.error(message);
             }
         });
     }
