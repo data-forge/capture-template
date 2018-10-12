@@ -1,7 +1,5 @@
 import { ICaptureOptions } from "./index";
 
-const Nightmare = require("nightmare");
-
 declare const document: any;
 
 /**
@@ -130,6 +128,7 @@ export class WebPageRenderer implements IWebPageRenderer {
             }
         }
 
+        const Nightmare = require("nightmare");
         this.nightmare = new Nightmare(nightmareOptions);
 
         this.nightmare.on('crashed', (evt: any) => {
