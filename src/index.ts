@@ -25,6 +25,13 @@ export interface ILog {
 }
 
 /**
+ * Environment variables to pass in when starting the Electrong process required for capturing.
+ */
+export interface IEnvVars {
+    [index: string]: string;
+}
+
+/**
  * Specifies options that can be passed to the capture function.
  */
 export interface ICaptureOptions {
@@ -58,6 +65,11 @@ export interface ICaptureOptions {
      * Specify the path to Electron if that's necessary for you.
      */
     electronPath?: string;
+
+    /**
+     * Environment variables to pass in when starting the Electrong process required for capturing.
+     */
+    env?: IEnvVars;
 }
 
 //

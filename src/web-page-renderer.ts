@@ -118,9 +118,16 @@ export class WebPageRenderer implements IWebPageRenderer {
             openDevTools: this.options && this.options.openDevTools,
         };
 
-        if (this.options && this.options.electronPath) {
-            // Include Electron path if specified.
-            nightmareOptions.electronPath = this.options.electronPath;
+        if (this.options) {
+            if (this.options.electronPath) {
+                // Include Electron path if specified.
+                nightmareOptions.electronPath = this.options.electronPath;
+            }
+
+            if (this.options.env) {
+                // Include Electron environment variables if specified.
+                nightmareOptions.env = this.options.env;
+            }
         }
 
         this.nightmare = new Nightmare(nightmareOptions);
