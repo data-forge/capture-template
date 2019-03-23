@@ -52,14 +52,14 @@ Expanding a web page and capturing a image:
     const data = { /* ... your data to be expanded into the template ... */ }
     const templatePath = "<path-to-load-your-template-web-page-from>";
     const outputPath = "<image-file-to-write-the-capture-to>";
-    await captureImage(data, templatePath, outputPath);
+    await captureImage(templatePath, data, outputPath);
 
 Expanding a web page and capturing a PDF:
 
     const data = { /* ... your data to be expanded into the template ... */ }
     const templatePath = "<path-to-load-your-template-web-page-from>";
     const outputPath = "<pdf-file-to-write-the-capture-to>";
-    await capturePDF(data, templatePath, outputPath);
+    await capturePDF(templatePath, data, outputPath);
 
 ## Command line usage
 

@@ -2,6 +2,7 @@ import { TemplateRenderer, ITemplateRenderer } from "./template-renderer";
 import { argv } from 'yargs';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { IInflateOptions } from "inflate-template";
 const promisify = require('promisify-any');
 
 /**
@@ -37,6 +38,11 @@ export interface IEnvVars {
 export interface ICaptureOptions {
 
     /**
+     * Options use when inflating the template.
+     */
+    inflateOptions: IInflateOptions;
+
+    /**
      * Optionally override logging.
      */
     log?: ILog;
@@ -62,6 +68,13 @@ export interface ICaptureOptions {
     showBrowser?: boolean;
 
     /**
+     * Set to true to leave the browser open.
+     * Note that this causes a hang so don't ever use it in production, it's only
+     * here for debugging.
+     */
+    leaveBrowserOpen?: boolean;
+
+    /**
      * Specify the path to Electron if that's necessary for you.
      */
     electronPath?: string;
@@ -75,17 +88,20 @@ export interface ICaptureOptions {
 //
 // Initalise the template renderer.
 //
-async function initTemplateRenderer(data: any, templatePath: string, port: number, options?: ICaptureOptions): Promise<ITemplateRenderer> {
+async function initTemplateRenderer(templatePath: string, data: any, port: number, options?: ICaptureOptions): Promise<ITemplateRenderer> {
     const templateRenderer = new TemplateRenderer(options);
     await templateRenderer.start();
-    await templateRenderer.loadTemplate(data, templatePath, port);
+    await templateRenderer.loadTemplate(templatePath, data, port);
     return templateRenderer;
 }
 
 //
 // Deinit the template renderer.
 //
-async function deinitTemplateRenderer(templateRenderer: ITemplateRenderer): Promise<void> {
+async function deinitTemplateRenderer(templateRenderer: ITemplateRenderer, options?: ICaptureOptions): Promise<void> {
+    if (options && options.leaveBrowserOpen) {
+        return; // Leave the browser open for debugging.
+    }
     await templateRenderer.unloadTemplate();
     await templateRenderer.end();
 }
@@ -93,10 +109,10 @@ async function deinitTemplateRenderer(templateRenderer: ITemplateRenderer): Prom
 //
 // Expand a template web page and capture it to an image file.
 //
-export async function captureImage(data: any, templatePath: string, outputPath: string, options?: ICaptureOptions): Promise<void> {
+export async function captureImage(templatePath: string, data: any, outputPath: string, options?: ICaptureOptions): Promise<void> {
     await fs.ensureDir(path.dirname(outputPath));
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
-    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo, options);
+    const templateRenderer = await initTemplateRenderer(templatePath, data, autoAssignPortNo, options);
     await templateRenderer.renderImage(outputPath);
     await deinitTemplateRenderer(templateRenderer);
 }
@@ -104,10 +120,10 @@ export async function captureImage(data: any, templatePath: string, outputPath: 
 //
 // Expand a template web page and capture it to a PDF file.
 //
-export async function capturePDF(data: any, templatePath: string, outputPath: string, options?: ICaptureOptions): Promise<void> {
+export async function capturePDF(templatePath: string, data: any, outputPath: string, options?: ICaptureOptions): Promise<void> {
     await fs.ensureDir(path.dirname(outputPath));
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
-    const templateRenderer = await initTemplateRenderer(data, templatePath, autoAssignPortNo, options);
+    const templateRenderer = await initTemplateRenderer(templatePath, data, autoAssignPortNo, options);
     await templateRenderer.renderPDF(outputPath);
     await deinitTemplateRenderer(templateRenderer);
 }
@@ -132,7 +148,7 @@ async function loadTestData(templatePath: string): Promise<any> {
 //
 async function cli_serve(templatePath: string, port: number): Promise<void> {
     const testData = await loadTestData(templatePath);
-    const templateRenderer = await initTemplateRenderer(testData, templatePath, port);
+    const templateRenderer = await initTemplateRenderer(templatePath, testData, port);
 
     console.log("Point your browser at " + templateRenderer.getUrl());
 }
@@ -142,7 +158,7 @@ async function cli_serve(templatePath: string, port: number): Promise<void> {
 //
 async function cli_captureImage(templatePath: string, outputPath: string): Promise<void> {
     const testData = await loadTestData(templatePath);
-    await captureImage(testData, templatePath, outputPath);
+    await captureImage(templatePath, testData, outputPath);
 }
 
 //
@@ -150,7 +166,7 @@ async function cli_captureImage(templatePath: string, outputPath: string): Promi
 //
 async function cli_capturePDF(templatePath: string, outputPath: string): Promise<void> {
     const testData = await loadTestData(templatePath);
-    await capturePDF(testData, templatePath, outputPath);
+    await capturePDF(templatePath, testData, outputPath);
 }
 
 //
@@ -158,11 +174,11 @@ async function cli_capturePDF(templatePath: string, outputPath: string): Promise
 //
 async function testRun(): Promise<void> {
     await captureImage(
+        "test-template/image",
         { 
             msg: "Hello computer",
             color: "blue",
         }, 
-        "test-template/image",
         "test-output/test-image.png"
     );
 }

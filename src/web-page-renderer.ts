@@ -33,17 +33,17 @@ export interface IWebPageRenderer {
     /**
      * Finish the chart renderer.
      */
-    /*async*/ end (): Promise<void>;
+    end (): Promise<void>;
 
     /**
      * Render a web page to an image file.
      */
-    /*async*/ renderImage (webPageUrl: string, outputFilePath: string, options: IRenderOptions): Promise<void>;
+    renderImage (webPageUrl: string, outputFilePath: string, options: IRenderOptions): Promise<void>;
 
     /**
      * Render a web page to a PDF file.
      */
-    /*async*/ renderPDF (webPageUrl: string, outputFilePath: string, options: IRenderOptions): Promise<void>;
+    renderPDF (webPageUrl: string, outputFilePath: string, options: IRenderOptions): Promise<void>;
 }
 
 /**

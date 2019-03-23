@@ -20,34 +20,34 @@ export interface ITemplateRenderer {
      * Start the template renderer.
      * For performance reasons the template render can be reused to render multiple web pages.
      */
-    /*async*/ start (): Promise<void>;
+    start (): Promise<void>;
 
     /**
      * Finish the template renderer.
      */
-    /*async*/ end (): Promise<void>;
+    end (): Promise<void>;
 
     /**
      * Load a template render for rendering.
      * 
      * @param templatePath The path to the template.
      */
-    /*async*/ loadTemplate(data: any, templatePath: string, port: number): Promise<void>;
+    loadTemplate(data: any, templatePath: string, port: number): Promise<void>;
 
     /**
      * Unload current template when we are done.
      */
-    /*async*/ unloadTemplate(): Promise<void>;
+    unloadTemplate(): Promise<void>;
 
     /**
      * Render the current web page template to an image file.
      */
-    /*async*/ renderImage (outputFilePath: string): Promise<void>;
+    renderImage (outputFilePath: string): Promise<void>;
 
     /**
      * Render the current web page template to a PDF file.
      */
-    /*async*/ renderPDF (outputFilePath: string): Promise<void>;
+    renderPDF (outputFilePath: string): Promise<void>;
 }
 
 /**
@@ -108,11 +108,11 @@ export class TemplateRenderer implements ITemplateRenderer {
      * 
      * @param templatePath The path to the template.
      */
-    async loadTemplate(data: any, templatePath: string, port: number): Promise<void> {
+    async loadTemplate(templatePath: string, data: any, port: number): Promise<void> {
         this.unloadTemplate();
 
-        this.templateWebServer = new TemplateWebServer(this.options && this.options.log);
-        await this.templateWebServer.start(data, templatePath, port);
+        this.templateWebServer = new TemplateWebServer(this.options && this.options.inflateOptions, this.options && this.options.log);
+        await this.templateWebServer.start(templatePath, data, port);
     }
 
     /**

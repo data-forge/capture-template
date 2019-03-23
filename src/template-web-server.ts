@@ -1,9 +1,9 @@
 import { WebServer, IWebServer }  from "./web-server";
-import { inflateTemplate } from "inflate-template";
+import { inflateTemplate, IInflateOptions } from "inflate-template";
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { ILog } from "./index";
-const promisify = require('promisify-any');        
+const promisify = require('promisify-any');
 
 declare const document: any;
 
@@ -27,7 +27,7 @@ export interface ITemplateWebServer {
      * Start the template renderer.
      * For performance reasons this can be reused to instantiate and render multiple web pages.
      */
-    start(data: any, templatePath: string, port: number): void;
+    start(templatePath: string, data: any, port: number): void;
 
     /**
      * Finish the chart renderer.
@@ -55,7 +55,13 @@ export class TemplateWebServer implements ITemplateWebServer {
      */
     private templateConfig: any | null = null;
 
-    constructor(log?: ILog) {
+    /**
+     * Options for inflating the tempalte.
+     */
+    private inflateOptions?: IInflateOptions;
+
+    constructor(inflateOptions?: IInflateOptions, log?: ILog) {
+        this.inflateOptions = inflateOptions;
         this.log = log;
     }
 
@@ -81,7 +87,7 @@ export class TemplateWebServer implements ITemplateWebServer {
      * Start the web page renderer.
      * For performance reasons this can be reused to render multiple pages.
      */
-    async start (data: any, templatePath: string, port: number): Promise<void> {
+    async start (templatePath: string, data: any, port: number): Promise<void> {
         if (this.templateConfig) {
             throw new Error("Template web server is already started. Please end the previous session by calling 'end'.");
         }
@@ -102,7 +108,7 @@ export class TemplateWebServer implements ITemplateWebServer {
                 throw new Error("Error in template configuration 'template.json' for template in directory '" + templatePath + "'. Please set 'waitSelector' to a valid CSS selector that designates the element in the DOM to wait before before invoking the capture.");
         }
 
-        const template = await inflateTemplate(data, { templatePath: templatePath });
+        const template = await inflateTemplate(templatePath, data, {}); //TODO: pass through in memory files.
 
         this.webServer = new WebServer(port);
         await this.webServer.start(data, template);

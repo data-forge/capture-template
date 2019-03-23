@@ -5,6 +5,21 @@ import { ITemplate } from 'inflate-template';
 import { ILog } from "./index";
 
 /**
+ * Defines an in-memory file served by the web server.
+ */
+export interface IInMemoryFile {
+    /**
+     * The name of the file.
+     */
+    file: string;
+
+    /**
+     * The content of the file.
+     */
+    content: string;
+}
+
+/**
  * Web-server component. Serves the chart interative chart.
  */
 export interface IWebServer {
@@ -111,6 +126,7 @@ export class WebServer implements IWebServer {
             const fileCache: any = {};
     
             app.use("/", async (request, response, next) => {
+                //todo: this is where in memory files can just be plugged in like the chart def.
                 try {
                     const fileName = request.url === "/" 
                         ? "index.html"
