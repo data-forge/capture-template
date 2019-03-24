@@ -114,7 +114,7 @@ export async function captureImage(templatePath: string, data: any, outputPath: 
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
     const templateRenderer = await initTemplateRenderer(templatePath, data, autoAssignPortNo, options);
     await templateRenderer.renderImage(outputPath);
-    await deinitTemplateRenderer(templateRenderer);
+    await deinitTemplateRenderer(templateRenderer, options);
 }
 
 //
@@ -125,7 +125,7 @@ export async function capturePDF(templatePath: string, data: any, outputPath: st
     const autoAssignPortNo = 0; // Use port no 0, to automatically assign a port number.
     const templateRenderer = await initTemplateRenderer(templatePath, data, autoAssignPortNo, options);
     await templateRenderer.renderPDF(outputPath);
-    await deinitTemplateRenderer(templateRenderer);
+    await deinitTemplateRenderer(templateRenderer, options);
 }
 
 // 

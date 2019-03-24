@@ -108,7 +108,7 @@ export class TemplateWebServer implements ITemplateWebServer {
                 throw new Error("Error in template configuration 'template.json' for template in directory '" + templatePath + "'. Please set 'waitSelector' to a valid CSS selector that designates the element in the DOM to wait before before invoking the capture.");
         }
 
-        const template = await inflateTemplate(templatePath, data, {}); //TODO: pass through in memory files.
+        const template = await inflateTemplate(templatePath, data, this.inflateOptions);
 
         this.webServer = new WebServer(port);
         await this.webServer.start(data, template);

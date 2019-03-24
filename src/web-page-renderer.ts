@@ -108,7 +108,7 @@ export class WebPageRenderer implements IWebPageRenderer {
     async start (): Promise<void> {
         const nightmareOptions: any = {
             show: this.options && this.options.showBrowser,
-            frame: false,
+            frame: this.options && this.options.showBrowser,
             maxHeight: 1000000,
             maxWidth: 1000000,
             waitTimeout: this.options && this.options.waitTimeout,
