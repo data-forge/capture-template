@@ -109,6 +109,8 @@ export class WebPageRenderer implements IWebPageRenderer {
         const nightmareOptions: any = {
             show: this.options && this.options.showBrowser,
             frame: this.options && this.options.showBrowser,
+            height: 100000,
+            width: 100000,
             maxHeight: 1000000,
             maxWidth: 1000000,
             waitTimeout: this.options && this.options.waitTimeout,
