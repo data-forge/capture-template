@@ -142,7 +142,7 @@ export class WebServer implements IWebServer {
                 }
             });
                 
-            this.server.listen(this.requestedPortNo, (err: any) => {
+            this.server.listen(this.requestedPortNo, "127.0.0.1", (err: any) => {
                 if (err) {
                     reject(err);
                 }

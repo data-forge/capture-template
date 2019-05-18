@@ -40,7 +40,7 @@ export interface ICaptureOptions {
     /**
      * Options use when inflating the template.
      */
-    inflateOptions: IInflateOptions;
+    inflateOptions?: IInflateOptions;
 
     /**
      * Optionally override logging.
