@@ -75,6 +75,11 @@ export interface ICaptureOptions {
     leaveBrowserOpen?: boolean;
 
     /**
+     * Specify the path to nightmare if it is to be included externally.
+     */
+    nightmarePath?: string;
+
+    /**
      * Specify the path to Electron if that's necessary for you.
      */
     electronPath?: string;

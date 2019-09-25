@@ -130,7 +130,8 @@ export class WebPageRenderer implements IWebPageRenderer {
             }
         }
 
-        const Nightmare = require("nightmare");
+        const nightmareModulePath = (this.options && this.options.nightmarePath) || "nightmare";
+        const Nightmare = require(nightmareModulePath);
         this.nightmare = new Nightmare(nightmareOptions);
 
         this.nightmare.on('crashed', (evt: any) => {
