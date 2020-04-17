@@ -140,7 +140,7 @@ export class WebPageRenderer implements IWebPageRenderer {
 
         this.nightmare.on('page', (type: string, message: string, stack: any) => {
             if (type === "error") {
-                this.error("Browser page error: " + message);
+                this.error("Browser page error: " + JSON.stringify(message, null, 4));
                 this.error(stack);
             }
         });
@@ -156,18 +156,17 @@ export class WebPageRenderer implements IWebPageRenderer {
         this.nightmare.on('console', (type: string, message: string) => {
 
             if (type === 'log') {
-                this.info('LOG: ' + message);
+                this.info('LOG: ' + JSON.stringify(message, null, 4));
                 return;
             }
     
             if (type === 'warn') {
-                this.warn('LOG: ' + message);
+                this.warn('LOG: ' + JSON.stringify(message, null, 4));
                 return;
             }
     
             if (type === 'error') {
-                this.error("Browser JavaScript error:");
-                this.error(message);
+                this.error("Browser JavaScript error: " + JSON.stringify(message, null, 4));
             }
         });
     }
@@ -237,7 +236,7 @@ export class WebPageRenderer implements IWebPageRenderer {
     async renderPDF (webPageUrl: string, outputFilePath: string, options: IRenderOptions): Promise<void> {
         this.preRenderCheck(options);
         this.nightmare.goto(webPageUrl);
-        this.nightmare.wait(options.waitSelector)
+        this.nightmare.wait(options.waitSelector);
         await this.nightmare.evaluate(() => {
                 const body = document.querySelector("body");
                 return {
