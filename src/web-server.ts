@@ -3,6 +3,7 @@ import * as http from 'http';
 import * as path from "path";
 import { ITemplate } from 'inflate-template';
 import { ILog } from "./index";
+import * as mime from "mime-types";
 
 /**
  * Defines an in-memory file served by the web server.
@@ -96,20 +97,6 @@ export class WebServer implements IWebServer {
         return "http://127.0.0.1:" + this.assignedPortNo;
     }
 
-    //
-    // Load a file from the template, caching it as necesary.
-    //
-    private async loadTemplateFile(template: ITemplate, url: string): Promise<Buffer> {
-        const fileSystemPath = path.join(...url.split('/'));
-        const templateFile = template.find(fileSystemPath);
-        if (!templateFile) {
-            throw new Error("Couldn't find file '" + url + "' in template.");
-        }
-
-        const expandedFileContent = await templateFile.expand();
-        return expandedFileContent;
-    }
-
     /**
      * Start the web-server.
      */
@@ -121,7 +108,19 @@ export class WebServer implements IWebServer {
             app.use("/", async (request, response, next) => {
                 try {
                     const fileName = request.url === "/" ? "index.html" : request.url;
-                    response.send(await this.loadTemplateFile(template, fileName));
+                    const fileSystemPath = path.join(...fileName.split('/'));
+                    const templateFile = template.find(fileSystemPath);
+                    if (!templateFile) {
+                        throw new Error("Couldn't find file '" + fileSystemPath + "' in template.");
+                    }
+            
+                    const fileContent = await templateFile.expand();
+                    const fileExt = path.extname(fileName);
+                    const mimeType = mime.lookup(fileExt);
+                    if (mimeType) {
+                        response.setHeader("content-type", mimeType);
+                    }
+                    response.send(fileContent);
                 }
                 catch (err) {
                     this.error("Error loading template file.");
