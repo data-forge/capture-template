@@ -99,11 +99,7 @@ export class WebServer implements IWebServer {
     //
     // Load a file from the template, caching it as necesary.
     //
-    private async loadTemplateFile(template: ITemplate, cache: any, url: string): Promise<string> {
-        const cachedFileContent = cache[url];
-        if (cachedFileContent) {
-            return cachedFileContent;
-        }
+    private async loadTemplateFile(template: ITemplate, url: string): Promise<Buffer> {
         const fileSystemPath = path.join(...url.split('/'));
         const templateFile = template.find(fileSystemPath);
         if (!templateFile) {
@@ -111,28 +107,21 @@ export class WebServer implements IWebServer {
         }
 
         const expandedFileContent = await templateFile.expand();
-        cache[url] = expandedFileContent;
         return expandedFileContent;
     }
 
     /**
      * Start the web-server.
      */
-    start (data: any, template: ITemplate): Promise<void> { //TODO: Would be best if a higher-level interface than ITemplate was passed in here.
+    start (data: any, template: ITemplate): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             const app = express();
             this.server = http.createServer(app);
 
-            const fileCache: any = {};
-    
             app.use("/", async (request, response, next) => {
-                //todo: this is where in memory files can just be plugged in like the chart def.
                 try {
-                    const fileName = request.url === "/" 
-                        ? "index.html"
-                        : request.url;
-                    const fileContent = await this.loadTemplateFile(template, fileCache, fileName);
-                    response.send(fileContent);
+                    const fileName = request.url === "/" ? "index.html" : request.url;
+                    response.send(await this.loadTemplateFile(template, fileName));
                 }
                 catch (err) {
                     this.error("Error loading template file.");
