@@ -5,6 +5,8 @@ This library is responsible for expanding a template web page and then capturing
 It provides the 'capture' functionality for [Data-Forge Plot](https://www.npmjs.com/package/data-forge-plot) and
 [Data-Forge Notebook](http://www.data-forge-notebook.com/).
 
+[Click here to support my work](https://www.codecapers.com.au/about#support-my-work)
+
 ## Premise
 
 A template web page is any number of web assets (JS files, HTML files, CSS files etc) in a directory. Each asset is a Handlebars template that can be expanded by data.
